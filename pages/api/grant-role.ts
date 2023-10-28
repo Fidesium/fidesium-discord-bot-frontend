@@ -9,9 +9,10 @@ export default async function grantRole(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const searchParams = useSearchParams()
-  const discordServerId = searchParams.get('discordServerId')
-  const roleId = searchParams.get('roleId')
+    const {query: {discordServerId, roleId}} = req
+//   const searchParams = useSearchParams()
+//   const discordServerId = searchParams.get('discordServerId')
+//   const roleId = searchParams.get('roleId')
   // Get data from thirdweb auth, fail request if not signed in
   const user = await getUser(req);
 
@@ -31,10 +32,13 @@ export default async function grantRole(
   const sdk = new ThirdwebSDK("polygon");
 
   // Check if this user owns an NFT
-  const editionDrop = await sdk.getContract(zkProofAddress, "edition-drop");
+  const contract = await sdk.getContract(zkProofAddress);
 
   // Get addresses' balance of token ID 0
-  const balance = await editionDrop.balanceOf(user?.address!, 0);
+  console.log(contract)
+  console.log(user?.address)
+  //@ts-ignore
+  const balance = await contract.call('balanceOf', [user?.address!]);
 
   if (balance.toNumber() > 0) {
     // If the user is verified and has an NFT, return the content

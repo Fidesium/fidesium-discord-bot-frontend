@@ -1,0 +1,135 @@
+# Javascript Node CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
+#
+version: 2.1
+orbs:
+  heroku: circleci/heroku@2.0.0
+defaults: &defaults
+  working_directory: ~/fidesium-discord-bot
+jobs:
+  node_setup:
+    <<: *defaults
+    docker:
+      - image: cimg/node:20.0.0
+    steps:
+      - checkout
+
+      - restore_cache:
+          key: npm-v1-{{ checksum "package-lock.json" }}-{{ arch }}
+
+      - restore_cache:
+          key: node-v18-{{ checksum "package.json" }}-{{ arch }}
+
+      - run: npm install --production=false
+
+      - save_cache:
+          key: npm-v1-{{ checksum "package-lock.json" }}-{{ arch }}
+          paths:
+            - ~/.cache/npm
+
+      - save_cache:
+          key: node-v18-{{ checksum "package.json" }}-{{ arch }}
+          paths:
+            - node_modules
+
+      - persist_to_workspace:
+          root: ~/fidesium-discord-bot
+          paths:
+            - node_modules
+
+  lint:
+    <<: *defaults
+    docker:
+      - image: cimg/node:18.1.0
+    steps:
+      - checkout
+
+      - attach_workspace:
+          at: ~/fidesium-discord-bot
+
+      - run: npm run lint
+
+  build:
+    <<: *defaults
+    docker:
+      - image: cimg/node:18.1.0
+    steps:
+      - checkout
+
+      - attach_workspace:
+          at: ~/fidesium-discord-bot
+
+      - run: npm run build
+
+  test:
+    <<: *defaults
+    docker:
+      - image: cimg/python:3.11.3-node
+      - image: cimg/postgres:16.0
+        environment:
+          POSTGRES_DB: fidesium
+          POSTGRES_USER: fidesium
+          POSTGRES_PASSWORD: fidesium
+
+    steps:
+      - checkout
+
+      - attach_workspace:
+          at: ~/fidesium-discord-bot
+
+      - run: pip install -r requirements.txt
+
+      - run: npm run migrate:up
+
+      - run: npm run test:ci
+
+      - store_artifacts:
+          path: coverage
+
+  stage:
+    <<: *defaults
+    executor: heroku/default
+    steps:
+      - checkout
+      - heroku/install
+      - heroku/deploy-via-git:
+          branch: 'main'
+          app-name: $HEROKU_STAGING_APP_NAME
+
+  deploy:
+    <<: *defaults
+    executor: heroku/default
+    steps:
+      - checkout
+      - heroku/install
+      - heroku/deploy-via-git:
+          branch: 'main'
+
+
+workflows:
+  fidesium-discord-bot:
+    jobs:
+      - node_setup
+      - lint:
+          requires:
+            - node_setup
+      - build:
+          requires:
+            - node_setup
+      # - test:
+      #     requires:
+      #       - node_setup
+      - stage:
+          requires:
+            - lint
+            - build
+          filters:
+            branches:
+              only: main
+      - deploy:
+          requires:
+            - stage
+          filters:
+            branches:
+              only: main

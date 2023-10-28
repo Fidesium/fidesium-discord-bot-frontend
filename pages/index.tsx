@@ -21,8 +21,6 @@ const Home: NextPage = () => {
     // Then make a request to our API endpoint.
     try {
       setLoading(true);
-      console.log('guild_id', guild_id)
-      console.log('role_id', role_id)
       const response = await fetch(`/api/grant-role?discordServerId=${guild_id}&roleId=${role_id}`, {
         method: "POST",
       });
