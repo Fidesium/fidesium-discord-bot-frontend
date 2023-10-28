@@ -16,7 +16,7 @@ jobs:
       - checkout
 
       - restore_cache:
-          key: npm-v1-{{ checksum "pnpm-lock.json" }}-{{ arch }}
+          key: npm-v1-{{ checksum "pnpm-lock.yaml" }}-{{ arch }}
 
       - restore_cache:
           key: node-v18-{{ checksum "package.json" }}-{{ arch }}
@@ -24,7 +24,7 @@ jobs:
       - run: npm install --production=false
 
       - save_cache:
-          key: npm-v1-{{ checksum "pnpm-lock.json" }}-{{ arch }}
+          key: npm-v1-{{ checksum "pnpm-lock.yaml" }}-{{ arch }}
           paths:
             - ~/.cache/npm
 
