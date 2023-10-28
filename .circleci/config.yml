@@ -6,7 +6,7 @@ version: 2.1
 orbs:
   heroku: circleci/heroku@2.0.0
 defaults: &defaults
-  working_directory: ~/fidesium-discord-bot
+  working_directory: ~/fidesium-discord-bot-frontend
 jobs:
   node_setup:
     <<: *defaults
@@ -34,7 +34,7 @@ jobs:
             - node_modules
 
       - persist_to_workspace:
-          root: ~/fidesium-discord-bot
+          root: ~/fidesium-discord-bot-frontend
           paths:
             - node_modules
 
@@ -46,7 +46,7 @@ jobs:
       - checkout
 
       - attach_workspace:
-          at: ~/fidesium-discord-bot
+          at: ~/fidesium-discord-bot-frontend
 
       - run: npm run lint
 
@@ -58,25 +58,15 @@ jobs:
       - checkout
 
       - attach_workspace:
-          at: ~/fidesium-discord-bot
+          at: ~/fidesium-discord-bot-frontend
 
       - run: npm run build
-
-  test:
-    <<: *defaults
-    docker:
-      - image: cimg/python:3.11.3-node
-      - image: cimg/postgres:16.0
-        environment:
-          POSTGRES_DB: fidesium
-          POSTGRES_USER: fidesium
-          POSTGRES_PASSWORD: fidesium
 
     steps:
       - checkout
 
       - attach_workspace:
-          at: ~/fidesium-discord-bot
+          at: ~/fidesium-discord-bot-frontend
 
       - run: pip install -r requirements.txt
 
@@ -108,7 +98,7 @@ jobs:
 
 
 workflows:
-  fidesium-discord-bot:
+  fidesium-discord-bot-frontend:
     jobs:
       - node_setup
       - lint:
