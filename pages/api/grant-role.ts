@@ -46,11 +46,6 @@ export default async function grantRole(
     // @ts-ignore
     const { userId } = session;
 
-    console.log(userId);
-
-    console.log(
-      `https://discordapp.com/api/guilds/${discordServerId}/members/${userId}/roles/${roleId}`
-    );
     const response = await fetch(
       // Discord Developer Docs for this API Request: https://discord.com/developers/docs/resources/guild#add-guild-member-role
       `https://discordapp.com/api/guilds/${discordServerId}/members/${userId}/roles/${roleId}`,
@@ -76,9 +71,9 @@ export default async function grantRole(
         .status(500)
         .json({ error: "Error granting role, are you in the server?" });
     }
+  } else {
+    window.open('https://robotornot.rarimo.com/', '_blank')
+    res.status(401).json({ error: "User has not proven their humanity" });
   }
   // If the user is verified but doesn't have an NFT, return an error
-  else {
-    res.status(401).json({ error: "User does not have an NFT" });
-  }
 }
