@@ -1,108 +1,57 @@
-import { ConnectWallet } from "@thirdweb-dev/react";
+import { useAddress, useUser } from "@thirdweb-dev/react";
+import type { NextPage } from "next";
+import { useSession } from "next-auth/react";
+import { useState } from "react";
+import SignIn from "../components/SignIn";
 import styles from "../styles/Home.module.css";
-import Image from "next/image";
-import { NextPage } from "next";
+import { useSearchParams } from 'next/navigation'
 
 const Home: NextPage = () => {
+  const address = useAddress();
+  const { data: session } = useSession();
+  const { isLoggedIn } = useUser();
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const searchParams = useSearchParams()
+  const guild_id = searchParams.get('guild_id')
+  const role_id = searchParams.get('role_id')
+
+  const requestGrantRole = async () => {
+    // Then make a request to our API endpoint.
+    try {
+      setLoading(true);
+      console.log('guild_id', guild_id)
+      console.log('role_id', role_id)
+      const response = await fetch(`/api/grant-role?discordServerId=${guild_id}&roleId=${role_id}`, {
+        method: "POST",
+      });
+      const data = await response.json();
+      console.log(data);
+      setMessage(data.message || data.error);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <main className={styles.main}>
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>
-            Welcome to{" "}
-            <span className={styles.gradientText0}>
-              <a
-                href="https://thirdweb.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                thirdweb.
-              </a>
-            </span>
-          </h1>
+    <div>
+      <div className={styles.container} style={{ marginTop: 0 }}>
+        <SignIn />
 
-          <p className={styles.description}>
-            Get started by configuring your desired network in{" "}
-            <code className={styles.code}>src/index.js</code>, then modify the{" "}
-            <code className={styles.code}>src/App.js</code> file!
-          </p>
-
-          <div className={styles.connect}>
-            <ConnectWallet
-              dropdownPosition={{
-                side: "bottom",
-                align: "center",
-              }}
-            />
+        {address && isLoggedIn && session && (
+          <div className={styles.collectionContainer}>
+            <button className={styles.mainButton} onClick={requestGrantRole}>
+              {loading ? "Loading..." : "Give me the role"}
+            </button>
           </div>
-        </div>
+        )}
 
-        <div className={styles.grid}>
-          <a
-            href="https://portal.thirdweb.com/"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              src="/images/portal-preview.png"
-              alt="Placeholder preview of starter"
-              width={300}
-              height={200}
-            />
-            <div className={styles.cardText}>
-              <h2 className={styles.gradientText1}>Portal ➜</h2>
-              <p>
-                Guides, references, and resources that will help you build with
-                thirdweb.
-              </p>
-            </div>
-          </a>
-
-          <a
-            href="https://thirdweb.com/dashboard"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              src="/images/dashboard-preview.png"
-              alt="Placeholder preview of starter"
-              width={300}
-              height={200}
-            />
-            <div className={styles.cardText}>
-              <h2 className={styles.gradientText2}>Dashboard ➜</h2>
-              <p>
-                Deploy, configure, and manage your smart contracts from the
-                dashboard.
-              </p>
-            </div>
-          </a>
-
-          <a
-            href="https://thirdweb.com/templates"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              src="/images/templates-preview.png"
-              alt="Placeholder preview of templates"
-              width={300}
-              height={200}
-            />
-            <div className={styles.cardText}>
-              <h2 className={styles.gradientText3}>Templates ➜</h2>
-              <p>
-                Discover and clone template projects showcasing thirdweb
-                features.
-              </p>
-            </div>
-          </a>
-        </div>
+        {message && <p>{message}</p>}
       </div>
-    </main>
+    </div>
   );
 };
 
