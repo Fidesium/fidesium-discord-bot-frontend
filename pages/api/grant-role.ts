@@ -45,6 +45,7 @@ export default async function grantRole(
 
     // @ts-ignore
     const { userId } = session;
+    console.log(userId)
 
     const response = await fetch(
       // Discord Developer Docs for this API Request: https://discord.com/developers/docs/resources/guild#add-guild-member-role
