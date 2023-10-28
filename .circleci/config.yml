@@ -62,21 +62,6 @@ jobs:
 
       - run: npm run build
 
-    steps:
-      - checkout
-
-      - attach_workspace:
-          at: ~/fidesium-discord-bot-frontend
-
-      - run: pip install -r requirements.txt
-
-      - run: npm run migrate:up
-
-      - run: npm run test:ci
-
-      - store_artifacts:
-          path: coverage
-
   stage:
     <<: *defaults
     executor: heroku/default
