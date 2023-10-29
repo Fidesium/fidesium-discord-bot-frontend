@@ -25,7 +25,6 @@ const Home: NextPage = () => {
         method: "POST",
       });
       const data = await response.json();
-      console.log(data);
       setMessage(data.message || data.error);
     } catch (e) {
       console.error(e);
