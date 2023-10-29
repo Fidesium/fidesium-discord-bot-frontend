@@ -6,6 +6,7 @@ import SignIn from "../components/SignIn";
 import styles from "../styles/Home.module.css";
 import { useSearchParams } from 'next/navigation'
 import fl from '../public/images/fidesium-logo-white.png'
+import Image from 'next/image';
 
 const Home: NextPage = () => {
   const address = useAddress();
@@ -36,7 +37,7 @@ const Home: NextPage = () => {
 
   return (
     <div>
-     <div className='header'><img className="logo" src={fl} alt="Fidesium logo"/> <span>Discord Risk Bot</span></div>
+     <div className='header'><Image className='logo' src={fl} alt="Fidesium logo"></Image> <span>Discord Risk Bot</span></div>
 
       <div className={styles.container} style={{ marginTop: 0 }}>
         <SignIn />
