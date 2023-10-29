@@ -18,5 +18,9 @@ a {
 
 body {
   color: #e7e8e8;
-  background: #070707;
+  background: #333333;
+}
+.header {
+  background: #4f4f4f;
+  padding: 10px;
 }
